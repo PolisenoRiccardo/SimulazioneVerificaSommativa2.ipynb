@@ -24,13 +24,13 @@ def nome():
     return render_template('risultato.html', table = table.to_html())
 
 @app.route('/citta', methods=['GET'])
-def città():
-    return render_template('input2.html')
+def citta():
+    cities = df['city'].tolist()
+    return render_template('input2.html', cities = list(set(cities)))
 
-@app.route('/risultatocitta', methods=['GET'])
-def città1():
-    citta = request.args.get('citta')
-    table = df[df['city'].str.contains(citta)]
+@app.route('/citta/<city>', methods=['GET'])
+def città1(city):
+    table = df[df['city'].str.contains(city)]
     return render_template('risultato.html', table = table.to_html())
 
 @app.route('/numeroclienti', methods=['GET'])

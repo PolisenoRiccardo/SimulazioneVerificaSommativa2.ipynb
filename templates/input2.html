@@ -6,7 +6,10 @@
 <body>
     <form action='/risultatocitta' method="get">
         <p>Inserisci la città:</p>
-        <input type="text" name="citta">        
+        {% for citta in cities %}
+        <a href="/citta/{{citta}}"><p>{{citta}}</p></a>
+        {% endfor %}
+         
         <input type="submit" value="Conferma">
     </form>
 </body>
