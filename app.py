@@ -1,3 +1,7 @@
+import io
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
 from flask import Flask, render_template, request, Response
 app = Flask(__name__)
 
@@ -39,31 +43,62 @@ def statoclienti():
     return render_template('risultato.html', table = table.tolist())
 
 @app.route('/grafici', methods=['GET'])
-def grafici():
-    import io
-    import matplotlib.pyplot as plt
-    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-    from matplotlib.figure import Figure
-    
-    dati = groupby['state']
-    labels = dati.index
+def grafici():   
+    dati = groupby['customer_id']
+    labels = groupby['state']
     
     fig, ax = plt.subplots()   
-    ax.bar(dati, labels)
+    ax.bar(labels, dati)
     plt.xticks(rotation=45)
     plt.title('Numero di prodotti per categoria')
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
-    return render_template('input.html')
+
+@app.route('/grafici1', methods=['GET'])
+def grafici1():   
+    dati = groupby['customer_id']
+    labels = groupby['state']
+    
+    fig, ax = plt.subplots()   
+    ax.barh(labels, dati)
+    plt.xticks(rotation=45)
+    plt.title('Numero di prodotti per categoria')
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+
+@app.route('/grafici2', methods=['GET'])
+def grafici2():   
+    dati = groupby['customer_id']
+    labels = groupby['state']
+    
+    fig, ax = plt.subplots()
+    ax.pie(dati, labels=labels)
+    plt.xticks(rotation=45)
+    plt.title('Numero di prodotti per categoria')
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+
 
 @app.route('/noMail', methods=['GET'])
-def noMail():
-    return render_template('input.html')
+def risultatonoMail():
+    table =df[df['email'].isna()][['first_name','last_name', 'phone']]
+    return render_template('risultato.html', table = table.to_html())
 
 @app.route('/provider', methods=['GET'])
 def provider():
-    return render_template('input.html')
+    return render_template('input3.html')
+
+@app.route('/risultatoprovider', methods=['GET'])
+def risultatoprovider():
+    provider = request.args.get('provider')
+    risultato = df[df['email'].str.endswith(f'@{provider}', na=False)][['first_name', 'last_name']]
+    if len(risultato) == 0:
+        return  ('<h1>Nessun cliente trovato</h1>')
+    else:
+        return render_template('risultato.html', table = risultato.to_html())
 
 
 
